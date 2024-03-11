@@ -2,4 +2,5 @@
 
 from PDBTools import pdblib
 
-pdblib.check_imported()
+print(pdblib.download_pdb("1C6Y"))
+
