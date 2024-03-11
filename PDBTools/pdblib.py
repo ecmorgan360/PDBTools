@@ -1,12 +1,6 @@
 import requests
 import os
 
-def check_imported():
-    print("The pdblib module has been imported and is being accessed.")
-
-class PDBRecord():
-    """"""
-
 def download_pdb(pdb_id):
     """Reads local PDB file contents, or downloads PDB file from RSCB site if no local copy, returning the contents of the file as a list of lines"""
     # Create a string of the filename
@@ -21,11 +15,20 @@ def download_pdb(pdb_id):
     # If the file is not found locally, use requests to download it
     else:
         # Print message telling user that local file was not found
-        print("A local file {0}.pdb was not found. The file with PDB ID {0} is now being downloaded.".format(pdb_id))
+        print("A local file {0}.pdb was not found. Trying to download a file with PDB ID {0}.".format(pdb_id))
         response = requests.get("https://files.rcsb.org/download/" + pdb_id + ".pdb")
-        # Get full contents as a string
-        contents = response.text
+        # if not successful, return an empty list
+        if response.status_code != 200:
+            print("A file for PDB ID {0} could not be downloaded. Please check the PDB ID given.".format(pdb_id))
+            return []
+        # Get full contents as a string if successfully downloaded
+        else:
+            contents = response.text
     # Convert string to list of lines of the file
     lines = contents.split("\n")
     # Return list of lines
     return lines
+
+# def print_details(details):
+#     """Prints each given detail from the list of details, each detail on a separate line. If the detail is longer than 80 characters, wrapping to the next line is performed."""
+    
