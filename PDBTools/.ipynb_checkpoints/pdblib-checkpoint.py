@@ -29,6 +29,29 @@ def download_pdb(pdb_id):
     # Return list of lines
     return lines
 
-# def print_details(details):
-#     """Prints each given detail from the list of details, each detail on a separate line. If the detail is longer than 80 characters, wrapping to the next line is performed."""
+def format_80(contents):
+    formatted = ""
+    for char_idx in range(len(contents)):
+        if ((char_idx % 80) == 0) and (char_idx != 0):
+            formatted += "\n" + contents[char_idx]
+        else:
+            formatted += contents[char_idx]
+    return formatted
+
+def print_details(details, lines):
+    """Prints each given detail from the list of details, each detail on a separate line. If the detail is longer than 80 characters, wrapping to the next line is performed."""
+    # Iterate through each line
+    for line in lines:
+        for starting_str in details.keys():
+            if line.startswith(starting_str):
+                if starting_str == "JRNL        TITL":
+                    details[starting_str] += line[17:-1]
+                else:
+                    details[starting_str] += line[10:-1]
+    for key, value in details.items():
+        if value == "":
+            print("There is no {0} in this PDB file.".format(key))
+        else:
+            formatted = format_80((" ".join(value.split())))
+            print(formatted)
     
