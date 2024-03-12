@@ -65,8 +65,8 @@ def print_details(details, lines):
             formatted = format_80((" ".join(value.split())))
             print(formatted)
 
-def print_prot_residues(chain_id, lines):
-    """Prints the single letter protein residues for a given chain_id and PDB file lines"""
+def get_prot_residues(chain_id, lines):
+    """Returns the single letter protein residues for a given chain_id of the PDB file"""
     # Dictionary with three-letter amino acid residues as keys, and one-letter aas as values
     codes = {"ALA":"A", "ASX":"B", "CYS":"C", "ASP":"D", "GLU":"E", "PHE":"F", "GLY":"G", "HIS":"H", "ILE":"I", "LYS":"K", "LEU":"L", "MET":"M", "ASN":"N", "PRO":"P", 
              "GLN":"Q", "ARG":"R", "SER":"S", "THR":"T", "SEC":"U", "VAL":"V", "TRP":"W", "XAA":"X", "TYR":"Y", "GLX":"Z"}
@@ -79,12 +79,51 @@ def print_prot_residues(chain_id, lines):
             aa_three_code = line[17:20]
             # Convert to 1-letter code using the dictionary codes, then add the code to the string of residues
             prot_res += codes[aa_three_code]
+    return prot_res
+
+def print_prot_residues(chain_id, lines):
+    """Prints the single letter protein residues for a given chain_id of a PDB file"""
+    # Get the single letter protein residues for the chain
+    prot_res = get_prot_residues(chain_id, lines)
     # If no protein residues were found, it indicates that the chain ID given does not exist
     if prot_res == "":
         print("Protein residues for a chain ID of {0} could not be found.".format(chain_id))
     # Else print protein residues
     else:
         print(prot_res)
+
+def get_fasta_protseqs(filename, chain_id, lines):
+    # If the chain ID was not given
+    if chain_id == "":
+        # Find all chain IDs in the file
+        # Empty set of chain IDs
+        chain_ids = set()
+        # Go through each line
+        for line in lines:
+            # Get the chain ID from lines starting with ATOM
+            if (line.startswith("ATOM")) and ("CA" in line):
+                chain_id = line[21]
+                # Add chain ID to the set
+                chain_ids.add(chain_id)
+    else:
+        # Set just has the given chain ID from user
+        chain_ids = {chain_id}
+    # Open file with given filename to write to
+    with open(filename+".fasta", "w") as fobject:
+        # Go through each chain ID
+        for chain_id in chain_ids:
+            # Get the protein sequence
+            prot_res = get_prot_residues(chain_id, lines)
+            # If the protein sequence is empty, then the chain ID was not found
+            if prot_res == "":
+                print("Protein residues for a chain ID of {0} could not be found. Please try with a different ID.".format(chain_id))
+            # Write the header and formatted protein sequence to the file
+            else:
+                header = ">" + " ".join((lines[0][10:-1]).split()) + ": {0}\n".format(chain_id)
+                formatted_seq = format_80(prot_res)
+                fobject.write(header)
+                fobject.write(formatted_seq+"\n")
+                
 
 
 

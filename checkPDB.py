@@ -7,6 +7,7 @@ def printed_menu():
     1 - Get contents of PDB file locally or download PDB file from NSCB given a PDB ID\n\
     2 - Print details from a PDB file\n\
     3 - Print protein residues for a given chain ID from a downloaded PDB file\n\
+    4 - Write protein residues of one or more chains from a PDB file in FASTA file format\n\
     Q, q or quit - Quit the program \n")
 
 def printed_detail_options():
@@ -45,6 +46,9 @@ while True:
         # Try to get file contents using provided input (returns empty list if PDB ID could not be found)
         else:
             pdb_lines = pdblib.download_pdb(pdb_id)
+    # If no PDB file contents have been downloaded yet, go back to main menu
+    elif pdb_lines == []:
+        print("No PDB file has been downloaded and read yet. Please download first.")
     elif option == "2":
         # Show all details that can be printed for a PDB file
         printed_detail_options()
@@ -68,19 +72,25 @@ while True:
         pdblib.print_details(user_details, pdb_lines)
     # Invalid option is given
     elif option == "3":
-        # If no PDB file contents have been downloaded yet, go back to main menu
-        if pdb_lines == []:
-            print("No PDB file has been downloaded and read yet. Please download first.")
-            pass
+        # Get the chain ID from the user
+        chain_id = input("Please provide the chain ID:")
+        # If asked to quit, then quit the program
+        if chain_id in quit_list:
+            break
+        # Find the chain
         else:
-            # Get the chain ID from the user
-            chain_id = input("Please provide the chain ID:")
-            # If asked to quit, then quit the program
-            if chain_id in quit_list:
-                break
-            # Find the chain
-            else:
-                pdblib.print_prot_residues(chain_id, pdb_lines)
+            pdblib.print_prot_residues(chain_id, pdb_lines)
+    elif option == "4":
+        # Get the output filename
+        output_filename = input("Please give the name of the FASTA file you wish to write the protein residues to (e.g. protein_resA): ")
+        if output_filename in quit_list:
+            break
+        # Get the chain ID (if empty string is returned, want all of them)
+        chain_id = input("Please provide the chain ID you wish to search for (Enter if all should be included):")
+        if output_filename in quit_list:
+            break
+        # Call function to write protein residues to FASTA file
+        pdblib.get_fasta_protseqs(output_filename, chain_id, pdb_lines)
     else:
         print("The option number you provided could not be determined. Please choose one of the given numbers/strings from the menu.")
 
