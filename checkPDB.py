@@ -45,22 +45,29 @@ while True:
         else:
             pdb_lines = pdblib.download_pdb(pdb_id)
     elif option == "2":
+        # Show all details that can be printed for a PDB file
         printed_detail_options()
+        # Dictionary holding each option and corresponding line pattern for detail
         detail_dict = {"1":"HEADER", "2":"TITLE", "3":"SOURCE", "4":"KEYWDS", "5":"AUTHOR", "6":"REMARK   2 RESOLUTION.", "7":"JRNL        TITL"}
+        # Get comma separated options from user
         detail_options = input("Please give a list of options:")
         options_list = detail_options.split(",")
         user_details = {}
         if detail_dict.keys() in quit_list:
             break
+        # Add each option to a dictionary with the line pattern as a key, and empty string as value
         for option in options_list:
             if option in detail_dict.keys():
                 detail = detail_dict[option]
                 user_details[detail] = ""
+            # If invalid option is given, print to user that invalid
             else:
                 print("Option {0} could not be found".format(option))
+        # Print the details if they can be found in the file
         pdblib.print_details(user_details, pdb_lines)
+    # Invalid option is given
     else:
-        print("The option number you provided could not be determined. Please choose one of the given numbers from the menu.")
+        print("The option number you provided could not be determined. Please choose one of the given numbers/strings from the menu.")
 
 print("You have quit the program.")
     

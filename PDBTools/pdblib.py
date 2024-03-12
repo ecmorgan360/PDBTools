@@ -30,10 +30,14 @@ def download_pdb(pdb_id):
     return lines
 
 def format_80(contents):
+    """Converts a string to a formatted string with 80 characters on each line"""
     formatted = ""
+    # Iterates through each index corresponding to a character in the string
     for char_idx in range(len(contents)):
+        # If the end of the line is reached, add newline character and current character on new line
         if ((char_idx % 80) == 0) and (char_idx != 0):
             formatted += "\n" + contents[char_idx]
+        # Else add character to the line
         else:
             formatted += contents[char_idx]
     return formatted
@@ -42,15 +46,21 @@ def print_details(details, lines):
     """Prints each given detail from the list of details, each detail on a separate line. If the detail is longer than 80 characters, wrapping to the next line is performed."""
     # Iterate through each line
     for line in lines:
+        # Iterate through each key in the dictionary
         for starting_str in details.keys():
+            # If the key matches the start of the line
             if line.startswith(starting_str):
+                # Get contents of the line (journal title contetns starts at a different index to the others), add to string for that key
                 if starting_str == "JRNL        TITL":
                     details[starting_str] += line[17:-1]
                 else:
                     details[starting_str] += line[10:-1]
+    # Iterate through each item in the dictionary
     for key, value in details.items():
+        # If the line was never found, print that could not find it
         if value == "":
             print("There is no {0} in this PDB file.".format(key))
+        # Else, print the formatted string contents
         else:
             formatted = format_80((" ".join(value.split())))
             print(formatted)
