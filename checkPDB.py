@@ -6,6 +6,7 @@ def printed_menu():
     print("\nPlease choose a functionality from the following (enter the number or letter):\n\
     1 - Get contents of PDB file locally or download PDB file from NSCB given a PDB ID\n\
     2 - Print details from a PDB file\n\
+    3 - Print protein residues for a given chain ID from a downloaded PDB file\n\
     Q, q or quit - Quit the program \n")
 
 def printed_detail_options():
@@ -66,6 +67,20 @@ while True:
         # Print the details if they can be found in the file
         pdblib.print_details(user_details, pdb_lines)
     # Invalid option is given
+    elif option == "3":
+        # If no PDB file contents have been downloaded yet, go back to main menu
+        if pdb_lines == []:
+            print("No PDB file has been downloaded and read yet. Please download first.")
+            pass
+        else:
+            # Get the chain ID from the user
+            chain_id = input("Please provide the chain ID:")
+            # If asked to quit, then quit the program
+            if chain_id in quit_list:
+                break
+            # Find the chain
+            else:
+                pdblib.print_prot_residues(chain_id, pdb_lines)
     else:
         print("The option number you provided could not be determined. Please choose one of the given numbers/strings from the menu.")
 

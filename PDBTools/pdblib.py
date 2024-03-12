@@ -64,4 +64,32 @@ def print_details(details, lines):
         else:
             formatted = format_80((" ".join(value.split())))
             print(formatted)
-    
+
+def print_prot_residues(chain_id, lines):
+    """Prints the single letter protein residues for a given chain_id and PDB file lines"""
+    # Dictionary with three-letter amino acid residues as keys, and one-letter aas as values
+    codes = {"ALA":"A", "ASX":"B", "CYS":"C", "ASP":"D", "GLU":"E", "PHE":"F", "GLY":"G", "HIS":"H", "ILE":"I", "LYS":"K", "LEU":"L", "MET":"M", "ASN":"N", "PRO":"P", 
+             "GLN":"Q", "ARG":"R", "SER":"S", "THR":"T", "SEC":"U", "VAL":"V", "TRP":"W", "XAA":"X", "TYR":"Y", "GLX":"Z"}
+    prot_res = ""
+    # Iterate through each line in the pdb file
+    for line in lines:
+        # Check that it is a line for a protein residue, carbon atom to not repeat the same residue, and find the correct chain
+        if (line.startswith("ATOM")) and ("CA" in line) and (line[21] == chain_id):
+            # Splice the three-letter amino acid code from the line
+            aa_three_code = line[17:20]
+            # Convert to 1-letter code using the dictionary codes, then add the code to the string of residues
+            prot_res += codes[aa_three_code]
+    # If no protein residues were found, it indicates that the chain ID given does not exist
+    if prot_res == "":
+        print("Protein residues for a chain ID of {0} could not be found.".format(chain_id))
+    # Else print protein residues
+    else:
+        print(prot_res)
+
+
+
+
+
+
+
+
