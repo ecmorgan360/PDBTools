@@ -9,6 +9,7 @@ def printed_menu():
     3 - Print protein residues for a given chain ID from a downloaded PDB file\n\
     4 - Write protein residues of one or more chains from a PDB file in FASTA file format\n\
     5 - Print ATOM/HETATM lines for a chain ID\n\
+    6 - Alter a chain ID of the downloaded PDB file\n\
     Q, q or quit - Quit the program \n")
 
 def printed_detail_options():
@@ -72,7 +73,7 @@ while True:
                 break
             pdblib.get_chain_residues(chain_id, record_type, filename, open_type, pdb_lines)
     # If no PDB file contents have been downloaded yet, go back to main menu
-    elif pdb_lines == []:
+    elif (pdb_lines == []):
         print("No PDB file has been downloaded and read yet. Please download first.")
     elif option == "2":
         # Show all details that can be printed for a PDB file
@@ -116,6 +117,17 @@ while True:
             break
         # Call function to write protein residues to FASTA file
         pdblib.get_fasta_protseqs(output_filename, chain_id, pdb_lines)
+    elif option == "6":
+        # Get the chain ID to alter
+        old_chain_id = input("Please give the name of the chain ID to alter: ")
+        if old_chain_id in quit_list:
+            break
+        # Get the new chain ID that will be replacing old
+        new_chain_id = input("Please give the chain ID that will be replacing the old chain ID (one alphabetical character): ")
+        if new_chain_id in quit_list:
+            break
+        # Alter the chain ID
+        pdblib.alter_chain_id(old_chain_id, new_chain_id, pdb_lines)
     else:
         print("The option number you provided could not be determined. Please choose one of the given numbers/strings from the menu.")
 
