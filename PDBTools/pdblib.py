@@ -4,11 +4,11 @@ import os
 def download_pdb(pdb_id):
     """Reads local PDB file contents, or downloads PDB file from RSCB site if no local copy, returning the contents of the file as a list of lines"""
     # Create a string of the filename
-    filename = pdb_id.upper() + ".pdb"
+    filename = pdb_id + ".pdb"
     # If the filename is found locally, open the file and read the contents
     if os.path.isfile(filename):
         # Print message to tell user that local file has been found
-        print("A local file for this ID, {0}.pdb was found. The contents of this file are now being read.".format(pdb_id.upper()))
+        print("A local file for this ID, {0}.pdb was found. The contents of this file are now being read.".format(pdb_id))
         with open(filename, 'r') as fobject:
             # Get all contents as a string
             contents = fobject.read()
@@ -153,6 +153,7 @@ def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
             fobject.write(file_contents)
 
 def alter_chain_id(old_chain_id, new_chain_id, lines):
+    """Alters the old chain ID to a new chain ID for the given contents of the PDB file, saving the changed contents to a file"""
     # If given an invalid new chain ID, print errors here
     if new_chain_id == "":
         print("No new chain ID was provided. Please provide a single alphabetical value.")
@@ -196,6 +197,32 @@ def alter_chain_id(old_chain_id, new_chain_id, lines):
                 print("This chain ID given does not exist in this file. Please give a different chain ID.")
 
 
-
-
+def print_nonstandard_residues(lines):
+    """Prints any non-standard protein residues given the contents of the PDB file"""
+    # List of three-letter codes for all standard protein residues
+    codes = ["ALA", "ASX", "CYS", "ASP", "GLU", "PHE", "GLY", "HIS", "ILE", "LYS", "LEU", "MET", "ASN", "PRO", 
+             "GLN", "ARG", "SER", "THR", "SEC", "VAL", "TRP", "XAA", "TYR", "GLX"]
+    non_standards = ""
+    curr_chain = ""
+    counter = 0
+    for line in lines:
+        # If we have reached a new chain, reset counter to 0 and keep track of next chain
+        if line.startswith("ATOM") and (line[21] != curr_chain):
+            curr_chain = line[21]
+            counter = 0
+        # If we have not looked at a protein residue yet
+        if line.startswith("ATOM") and (counter < int(line[23:26])):
+            # Increase the counter to find the next protein residue
+            counter = int(line[23:26])
+            # Find the current code
+            res_code = line[17:20]
+            # Add code if not in list of standard protein residues
+            if res_code not in codes:
+                non_standards += res_code
+    # If no non-standard codes found, print that all were standard
+    if non_standards == "":
+        print("All protein residues were standard.")
+    # Print any non-stnadard codes
+    else:
+        print(non_standards)
 

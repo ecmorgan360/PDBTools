@@ -5,11 +5,12 @@ from PDBTools import pdblib
 def printed_menu():
     print("\nPlease choose a functionality from the following (enter the number or letter):\n\
     1 - Get contents of PDB file locally or download PDB file from NSCB given a PDB ID\n\
-    2 - Print details from a PDB file\n\
+    2 - Print details from a downloaded PDB file\n\
     3 - Print protein residues for a given chain ID from a downloaded PDB file\n\
     4 - Write protein residues of one or more chains from a PDB file in FASTA file format\n\
-    5 - Print ATOM/HETATM lines for a chain ID\n\
+    5 - Print ATOM/HETATM lines for a chain ID of a downloaded PDB file\n\
     6 - Alter a chain ID of the downloaded PDB file\n\
+    7 - Print any non-standard protein residues from a downloaded PDB file\n\
     Q, q or quit - Quit the program \n")
 
 def printed_detail_options():
@@ -128,6 +129,8 @@ while True:
             break
         # Alter the chain ID
         pdblib.alter_chain_id(old_chain_id, new_chain_id, pdb_lines)
+    elif option == "7":
+        pdblib.print_nonstandard_residues(pdb_lines)
     else:
         print("The option number you provided could not be determined. Please choose one of the given numbers/strings from the menu.")
 
