@@ -123,10 +123,34 @@ def get_fasta_protseqs(filename, chain_id, lines):
                 formatted_seq = format_80(prot_res)
                 fobject.write(header)
                 fobject.write(formatted_seq+"\n")
+
+def get_residue_lines(chain_id, starting, lines):
+    """Returns a string containing all lines which start with the given strings in the starting list and contain the chain ID"""
+    res_lines = ""
+    for line in lines:
+        for record in starting:
+            if (line.startswith(record)) and (line[21] == chain_id):
+                res_lines += (line + "\n")
+    return res_lines
                 
-
-
-
+def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
+    """Prints the lines matching the record type asked for from the given filename, or writes these lines to a file to the given filename for a particular chain ID"""
+    # Find ATOM and HETATM if record type is anything other than ATOM or HETATM
+    if (record_type != "ATOM") and (record_type != "HETATM"):
+        starting = ["ATOM", "HETATM"]
+    else:
+        starting = [record_type]
+    # If asked to read from the file
+    if read_write == "r":
+        contents = download_pdb(filename)
+        print(get_residue_lines(chain_id, starting, contents))
+    # Otherwise assume we are writing to the filename given
+    else:
+        # Get the lines needed
+        file_contents = get_residue_lines(chain_id, starting, pdb_lines)
+        # Write the lines to the file
+        with open((filename+".txt"), "w") as fobject:
+            fobject.write(file_contents)
 
 
 
