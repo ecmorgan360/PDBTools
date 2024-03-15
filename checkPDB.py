@@ -2,7 +2,11 @@
 
 from PDBTools import pdblib
 
-def printed_menu():
+def printed_menu(curr_id):
+    if curr_id == "":
+        print("\nNo PDB file has been read in yet. Please open or download a file using option 1.")
+    else:
+        print("\nThe current PDB file you are working on has ID:", curr_id)
     print("\nPlease choose a functionality from the following (enter the number or letter):\n\
     1 - Get contents of PDB file locally or download PDB file from NSCB given a PDB ID\n\
     2 - Print details from a downloaded PDB file\n\
@@ -26,30 +30,35 @@ def printed_detail_options():
 
 # Variable to hold lines of PDB file
 pdb_lines = []
+curr_id = ""
 # Strings that will cause the program to quit
 quit_list = ["q", "Q", "quit"]
+
+# Initially print the menu
+printed_menu(curr_id)
 while True:
     # Print all main functionality options
-    printed_menu()
+    
     # Receive user input
-    option = input("Option: ")
+    option = input("Choose an option: ")
     # If user has asked to quit, break out of while loop
     if option in quit_list:
         break
-    # If user does not provide any input, then return to menu
-    if option == "":
-        pass
+        
+    # If user does not provide any input, then print the menu
+    elif option == "":
+        printed_menu(curr_id)
+        
     # If user wishes to get the file contents
     elif option == "1":
         # Ask for a PDB ID to access the file
-        pdb_id = input("Please provide a PDB ID: ")
+        pdb_id = input("Please provide a PDB ID (case sensitive): ")
         # If user provides string to quit, break out of while loop
         if pdb_id in quit_list:
-            quit_list = False
             break
         # Try to get file contents using provided input (returns empty list if PDB ID could not be found)
         else:
-            pdb_lines = pdblib.download_pdb(pdb_id)
+            (pdb_lines, curr_id) = pdblib.download_pdb(pdb_id)
             
     elif option == "5":
         # Get the filename
@@ -102,7 +111,7 @@ while True:
         # Print the details if they can be found in the file
         pdblib.print_details(user_details, pdb_lines)
         
-    # Invalid option is given
+    # 
     elif option == "3":
         # Get the chain ID from the user
         chain_id = input("Please provide the chain ID:")

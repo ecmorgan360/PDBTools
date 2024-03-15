@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 
 def download_pdb(pdb_id):
-    """Reads local PDB file contents, or downloads PDB file from RSCB site if no local copy, returning the contents of the file as a list of lines"""
+    """Reads local PDB file contents, or downloads PDB file from RSCB site and saves to a file if no local copy. It returns the contents of the file as a list of lines."""
     # Create a string of the filename
     filename = pdb_id + ".pdb"
     # If the filename is found locally, open the file and read the contents
@@ -22,13 +22,18 @@ def download_pdb(pdb_id):
         if response.status_code != 200:
             print("A file for PDB ID {0} could not be downloaded. Please check the PDB ID given.".format(pdb_id))
             return []
-        # Get full contents as a string if successfully downloaded
+        # If successfully downloaded
         else:
+            # Get the file contents
             contents = response.text
+            # Save the file locally
+            with open(filename, 'w') as fobject:
+                fobject.write(contents)
+            print("The PDB file has been downloaded, and saved to the file {0}.pdb".format(pdb_id))
     # Convert string to list of lines of the file
     lines = contents.split("\n")
     # Return list of lines
-    return lines
+    return (lines, pdb_id)
 
 def format_80(contents):
     """Converts a string to a formatted string with 80 characters on each line"""
@@ -249,6 +254,4 @@ def plot_temp_factor(chain_id, height, width, output_filename, lines):
     plt.xlabel("Atom number")
     plt.ylabel("Temperature factor")
     plt.savefig(output_filename)
-
-
 
