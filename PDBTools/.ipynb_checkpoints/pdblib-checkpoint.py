@@ -161,17 +161,26 @@ def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
             fobject.write(file_contents)
         print("Your resultant lines for chain {0} are in {1}.txt".format(chain_id, filename))
 
+def is_valid_chain(chain_id):
+    valid = False
+    """Returns True if the chain ID is syntactically correct, False otherwise"""
+    # Must not be empty
+    if chain_id == "":
+        print("One or more provided chain IDs were empty. Please provide a single alphabetical character for each chain.")
+    elif len(chain_id) > 1:
+        chain_length = len(chain_id)
+        print("A chain ID can only be one character long. The chain ID provided, {0}, had a length of {1}".format(chain_id, chain_length))
+    elif chain_id.isnumeric():
+        print("A chain ID can only be an alphabetic character, not a numeric character.")
+    else:
+        valid = True
+    return valid
+
 def alter_chain_id(old_chain_id, new_chain_id, lines):
     """Alters the old chain ID to a new chain ID for the given contents of the PDB file, saving the changed contents to a file"""
-    # If given an invalid new chain ID, print errors here
-    if new_chain_id == "":
-        print("No new chain ID was provided. Please provide a single alphabetical value.")
-    elif len(new_chain_id) > 1:
-        print("A chain ID can only be one character long.")
-    elif new_chain_id.isnumeric():
-        print("The new chain ID can only be an alphabetic character, not a numeric character.")
-    else:
-        # Check if old chain ID is actually in the PDB file
+    # If both chain IDs are syntactically valid
+    if (is_valid_chain(old_chain_id)) and (is_valid_chain(new_chain_id)):
+        # Check if old chain ID is actually in the PDB file for any residues
         found_old_id = False
         for line in lines:
             if (line.startswith("ATOM") and (line[21] == old_chain_id)) or (line.startswith("HETATM") and (line[21] == old_chain_id)):
@@ -179,32 +188,33 @@ def alter_chain_id(old_chain_id, new_chain_id, lines):
                 break
         # If the old chain ID is there
         if found_old_id:
+            new_lines = []
             altered_text = ""
             # Iterate through each line
             for line in lines:
                 # If a protein residue or non-protein residue line, and the old chain ID matches
                 if (line.startswith("ATOM") and (line[21] == old_chain_id)) or (line.startswith("HETATM") and (line[21] == old_chain_id)):
                     # Replace old chain ID with new chain ID
-                    altered_text += (line[:21] + new_chain_id + line[22:]) + "\n"
+                    new_line = (line[:21] + new_chain_id + line[22:])
+                    altered_text += new_line + "\n"
+                    new_lines.append(new_line)
                 # If not a residue line, then just add the line with no changes
                 else:
                     altered_text += (line) + "\n"
+                    new_lines.append(line)
             # Get the name of the file from the header
             filename = lines[0].split()[-1] + ".pdb"
             # Write the altered text to the file named according to the header
             with open(filename, 'w') as fobject:
                 fobject.write(altered_text)
             print("The chain ID {0} has been altered to {1} for all residue lines in file {2}".format(old_chain_id, new_chain_id, filename))
-        # If old chain ID was not found, could be one of the reasons printed to user below
+            # Update the list of lines in main program to also be altered
+            return new_lines
+        # If old chain ID was not found, tell user to choose another ID that exists
         else:
-            if old_chain_id == "":
-                print("No initial chain ID was given.")
-            elif len(old_chain_id) > 1:
-                print("The initial chain ID should only be one character long.")
-            elif old_chain_id.isnumeric():
-                print("All chain IDs must be an alphabetical character, not a numeric character.")
-            else:
-                print("This chain ID given does not exist in this file. Please give a different chain ID.")
+            print("The old chain ID {0} does not exist in this file. Please give a different chain ID.".format(old_chain_id))
+    # Return original contents if never altered
+    return lines
 
 
 def print_nonstandard_residues(lines):

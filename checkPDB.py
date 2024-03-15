@@ -113,7 +113,7 @@ while True:
     # 
     elif option == "3":
         # Get the chain ID from the user
-        chain_id = input("Please provide the chain ID:")
+        chain_id = input("Please provide the chain ID: ")
         # If asked to quit, then quit the program
         if chain_id in quit_list:
             break
@@ -143,7 +143,7 @@ while True:
         if new_chain_id in quit_list:
             break
         # Alter the chain ID
-        pdblib.alter_chain_id(old_chain_id, new_chain_id, pdb_lines)
+        pdb_lines = pdblib.alter_chain_id(old_chain_id, new_chain_id, pdb_lines)
         
     elif option == "7":
         pdblib.print_nonstandard_residues(pdb_lines)
