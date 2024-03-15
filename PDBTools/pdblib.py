@@ -1,5 +1,6 @@
 import requests
 import os
+import matplotlib.pyplot as plt
 
 def download_pdb(pdb_id):
     """Reads local PDB file contents, or downloads PDB file from RSCB site if no local copy, returning the contents of the file as a list of lines"""
@@ -225,4 +226,29 @@ def print_nonstandard_residues(lines):
     # Print any non-stnadard codes
     else:
         print(non_standards)
+
+def plot_temp_factor(chain_id, height, width, output_filename, lines):
+    """Plots the temperature factor for all atoms of the protein chain, writing to an output file a plot of given height and width"""
+    height = int(height)
+    width = int(width)
+    # Get all atom numbers in one list, and temperature factors in a second one
+    atom_nums = []
+    temp_factors = []
+    for line in lines:
+        # Get each line detailing an atom of a protein residue
+        if line.startswith("ATOM"):
+            atom_num = int(line[4:11])
+            temp_factor = float(line[61:66])
+            atom_nums.append(atom_num)
+            temp_factors.append(int(temp_factor))
+    # Plotting line graph of size height by width
+    fig = plt.figure(figsize=(height, width))
+    # X axis is atom numbers, y axis is temperature factor
+    plt.plot(atom_nums, temp_factors)
+    # Label x and y axes
+    plt.xlabel("Atom number")
+    plt.ylabel("Temperature factor")
+    plt.savefig(output_filename)
+
+
 

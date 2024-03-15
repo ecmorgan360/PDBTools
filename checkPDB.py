@@ -11,6 +11,7 @@ def printed_menu():
     5 - Print ATOM/HETATM lines for a chain ID of a downloaded PDB file\n\
     6 - Alter a chain ID of the downloaded PDB file\n\
     7 - Print any non-standard protein residues from a downloaded PDB file\n\
+    8 - Plot the temperature factor of a protein for a chain\n\
     Q, q or quit - Quit the program \n")
 
 def printed_detail_options():
@@ -49,6 +50,7 @@ while True:
         # Try to get file contents using provided input (returns empty list if PDB ID could not be found)
         else:
             pdb_lines = pdblib.download_pdb(pdb_id)
+            
     elif option == "5":
         # Get the filename
         filename = input("Please specify the name of the file to read/write from (e.g. 1HIV): ")
@@ -73,9 +75,11 @@ while True:
             if record_type in quit_list:
                 break
             pdblib.get_chain_residues(chain_id, record_type, filename, open_type, pdb_lines)
+            
     # If no PDB file contents have been downloaded yet, go back to main menu
     elif (pdb_lines == []):
         print("No PDB file has been downloaded and read yet. Please download first.")
+        
     elif option == "2":
         # Show all details that can be printed for a PDB file
         printed_detail_options()
@@ -97,6 +101,7 @@ while True:
                 print("Option {0} could not be found".format(option))
         # Print the details if they can be found in the file
         pdblib.print_details(user_details, pdb_lines)
+        
     # Invalid option is given
     elif option == "3":
         # Get the chain ID from the user
@@ -107,6 +112,7 @@ while True:
         # Find the chain
         else:
             pdblib.print_prot_residues(chain_id, pdb_lines)
+            
     elif option == "4":
         # Get the output filename
         output_filename = input("Please give the name of the FASTA file you wish to write the protein residues to (e.g. protein_resA): ")
@@ -118,6 +124,7 @@ while True:
             break
         # Call function to write protein residues to FASTA file
         pdblib.get_fasta_protseqs(output_filename, chain_id, pdb_lines)
+        
     elif option == "6":
         # Get the chain ID to alter
         old_chain_id = input("Please give the name of the chain ID to alter: ")
@@ -129,8 +136,24 @@ while True:
             break
         # Alter the chain ID
         pdblib.alter_chain_id(old_chain_id, new_chain_id, pdb_lines)
+        
     elif option == "7":
         pdblib.print_nonstandard_residues(pdb_lines)
+        
+    elif option == "8":
+        chain_id = input("Please give the chain ID of the protein: ")
+        if chain_id in quit_list:
+            break
+        height = input("Please give the height of the plot in inches: ")
+        if height in quit_list:
+            break
+        width = input("Please give the width of the plot in inches: ")
+        if width in quit_list:
+            break
+        filename = input("Please give full name of the file to save the plot as: ")
+        if filename in quit_list:
+            break
+        pdblib.plot_temp_factor(chain_id, height, width, filename, pdb_lines)
     else:
         print("The option number you provided could not be determined. Please choose one of the given numbers/strings from the menu.")
 
