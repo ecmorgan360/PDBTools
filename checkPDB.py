@@ -143,7 +143,7 @@ while True:
         if new_chain_id in quit_list:
             break
         # Alter the chain ID
-        pdb_lines = pdblib.alter_chain_id(old_chain_id, new_chain_id, pdb_lines)
+        (pdb_lines, curr_id) = pdblib.alter_chain_id(old_chain_id, new_chain_id, pdb_lines, curr_id)
         
     elif option == "7":
         pdblib.print_nonstandard_residues(pdb_lines)

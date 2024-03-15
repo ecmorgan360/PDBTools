@@ -176,8 +176,8 @@ def is_valid_chain(chain_id):
         valid = True
     return valid
 
-def alter_chain_id(old_chain_id, new_chain_id, lines):
-    """Alters the old chain ID to a new chain ID for the given contents of the PDB file, saving the changed contents to a file"""
+def alter_chain_id(old_chain_id, new_chain_id, lines, pdb_id):
+    """Alters the old chain ID to a new chain ID for all residues in the PDB file, saving the changed contents to a file"""
     # If both chain IDs are syntactically valid
     if (is_valid_chain(old_chain_id)) and (is_valid_chain(new_chain_id)):
         # Check if old chain ID is actually in the PDB file for any residues
@@ -203,18 +203,18 @@ def alter_chain_id(old_chain_id, new_chain_id, lines):
                     altered_text += (line) + "\n"
                     new_lines.append(line)
             # Get the name of the file from the header
-            filename = lines[0].split()[-1] + ".pdb"
+            filename = pdb_id + "_" + new_chain_id + ".pdb"
             # Write the altered text to the file named according to the header
             with open(filename, 'w') as fobject:
                 fobject.write(altered_text)
-            print("The chain ID {0} has been altered to {1} for all residue lines in file {2}".format(old_chain_id, new_chain_id, filename))
+            print("The chain ID {0} has been altered to {1} for all residue lines, saved to file {2}. File {2} is now the PDB file being used".format(old_chain_id, new_chain_id, filename))
             # Update the list of lines in main program to also be altered
-            return new_lines
+            return (new_lines, filename)
         # If old chain ID was not found, tell user to choose another ID that exists
         else:
             print("The old chain ID {0} does not exist in this file. Please give a different chain ID.".format(old_chain_id))
     # Return original contents if never altered
-    return lines
+    return (lines, pdb_id)
 
 
 def print_nonstandard_residues(lines):
