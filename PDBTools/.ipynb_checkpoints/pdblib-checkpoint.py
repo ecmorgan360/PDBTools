@@ -89,46 +89,54 @@ def get_prot_residues(chain_id, lines):
 
 def print_prot_residues(chain_id, lines):
     """Prints the single letter protein residues for a given chain_id of a PDB file"""
-    # Get the single letter protein residues for the chain
-    prot_res = get_prot_residues(chain_id, lines)
-    # If no protein residues were found, it indicates that the chain ID given does not exist
-    if prot_res == "":
-        print("Protein residues for a chain ID of {0} could not be found.".format(chain_id))
-    # Else print protein residues
-    else:
-        print(prot_res)
+    # Check that chain ID is syntactically valid
+    if is_valid_chain(chain_id):
+        # Get the single letter protein residues for the chain
+        prot_res = get_prot_residues(chain_id, lines)
+        # If no protein residues were found, it indicates that the chain ID given does not exist in that folder
+        if prot_res == "":
+            print("Protein residues for a chain ID of {0} could not be found.".format(chain_id))
+        # Else print protein residues
+        else:
+            print(prot_res)
 
 def get_fasta_protseqs(filename, chain_id, lines):
-    # If the chain ID was not given
+    # If the chain ID was not given, find all chain IDs for protein residues
     if chain_id == "":
-        # Find all chain IDs in the file
         # Empty set of chain IDs
         chain_ids = set()
         # Go through each line
         for line in lines:
-            # Get the chain ID from lines starting with ATOM
+            # If a protein residue line with alpha-carbon found
             if (line.startswith("ATOM")) and ("CA" in line):
                 chain_id = line[21]
                 # Add chain ID to the set
                 chain_ids.add(chain_id)
     else:
-        # Set just has the given chain ID from user
-        chain_ids = {chain_id}
-    # Open file with given filename to write to
-    with open(filename+".fasta", "w") as fobject:
-        # Go through each chain ID
-        for chain_id in chain_ids:
-            # Get the protein sequence
-            prot_res = get_prot_residues(chain_id, lines)
-            # If the protein sequence is empty, then the chain ID was not found
-            if prot_res == "":
-                print("Protein residues for a chain ID of {0} could not be found. Please try with a different ID.".format(chain_id))
-            # Write the header and formatted protein sequence to the file
-            else:
-                header = ">" + " ".join((lines[0][10:-1]).split()) + ": {0}\n".format(chain_id)
-                formatted_seq = format_80(prot_res)
-                fobject.write(header)
-                fobject.write(formatted_seq+"\n")
+        # Check if given chain ID is syntactically valid
+        if is_valid_chain(chain_id):
+            # Set of chains only contains that ID
+            chain_ids = {chain_id}
+
+    # String to hold all contents to write to file
+    contents = ""
+    # Go through each chain ID
+    for chain_id in chain_ids:
+        # Get the protein sequence
+        prot_res = get_prot_residues(chain_id, lines)
+        # If the protein sequence is empty, then the chain ID was not found
+        if prot_res == "":
+            print("Protein residues for a chain ID of {0} could not be found. Please try with a different ID.".format(chain_id))
+        # Otherwise, add header and formatted protein sequence to contents
+        else:
+            header = ">" + " ".join((lines[0][10:-1]).split()) + ": {0}\n".format(chain_id)
+            formatted_seq = format_80(prot_res)
+            contents += header + formatted_seq
+    # Only write to the FASTA file if any protein sequences were found
+    if contents != "":
+        with open(filename+".fasta", 'w') as fobject:
+            fobject.write(contents)
+        # Tell user then name of the file it was written to, and the chains it was written to
         print("The protein residues from chains {0} were written to the FASTA file {1}.fasta".format(chain_ids, filename))
 
 def get_residue_lines(chain_id, starting, lines):

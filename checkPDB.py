@@ -3,11 +3,7 @@
 from PDBTools import pdblib
 
 def printed_menu(curr_id):
-    if curr_id == "":
-        print("\nNo PDB file has been read in yet. Please open or download a file using option 1.")
-    else:
-        print("\nThe current PDB file you are working on has ID:", curr_id)
-    print("\nPlease choose a functionality from the following (enter the number or letter):\n\
+    print("\nThe functionalities of this program are listed below (enter the number or letter to choose):\n\
     1 - Get contents of PDB file locally or download PDB file from NSCB given a PDB ID\n\
     2 - Print details from a downloaded PDB file\n\
     3 - Print protein residues for a given chain ID from a downloaded PDB file\n\
@@ -17,6 +13,10 @@ def printed_menu(curr_id):
     7 - Print any non-standard protein residues from a downloaded PDB file\n\
     8 - Plot the temperature factor of a protein for a chain\n\
     Q, q or quit - Quit the program \n")
+    if curr_id == "":
+        print("No PDB file has been read in yet. Please open or download a file using option 1.\n")
+    else:
+        print("The current PDB file you are working on has ID:", curr_id, "\n")
 
 def printed_detail_options():
     print("\n Please choose all options you wish to see, separated by commas:\n\
@@ -34,6 +34,7 @@ curr_id = ""
 # Strings that will cause the program to quit
 quit_list = ["q", "Q", "quit"]
 
+print("Welcome! This program makes use of PDBTools")
 # Initially print the menu
 printed_menu(curr_id)
 while True:
