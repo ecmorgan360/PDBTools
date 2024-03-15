@@ -12,7 +12,7 @@ def printed_menu(curr_id):
     2 - Print details from a downloaded PDB file\n\
     3 - Print protein residues for a given chain ID from a downloaded PDB file\n\
     4 - Write protein residues of one or more chains from a PDB file in FASTA file format\n\
-    5 - Print ATOM/HETATM lines for a chain ID of a downloaded PDB file\n\
+    5 - Print/write residue lines from or to a file\n\
     6 - Alter a chain ID of the downloaded PDB file\n\
     7 - Print any non-standard protein residues from a downloaded PDB file\n\
     8 - Plot the temperature factor of a protein for a chain\n\
@@ -37,8 +37,6 @@ quit_list = ["q", "Q", "quit"]
 # Initially print the menu
 printed_menu(curr_id)
 while True:
-    # Print all main functionality options
-    
     # Receive user input
     option = input("Choose an option: ")
     # If user has asked to quit, break out of while loop
@@ -59,7 +57,8 @@ while True:
         # Try to get file contents using provided input (returns empty list if PDB ID could not be found)
         else:
             (pdb_lines, curr_id) = pdblib.download_pdb(pdb_id)
-            
+
+    # If user wishes to read/write residue lines
     elif option == "5":
         # Get the filename
         filename = input("Please specify the name of the file to read/write from (e.g. 1HIV): ")
@@ -72,7 +71,7 @@ while True:
         if open_type in quit_list:
             break
         # If we have been asked to write to a file, but no PDB file has been downloaded yet, go back to menu
-        if (open_type != "r") and (pdb_lines == []):
+        if (open_type.lower() != "r") and (pdb_lines == []):
             print("You cannot write to this file as no PDB file has been downloaded yet. Please download the PDB file first (option 1).")
         else:
             # Get the chain ID
@@ -80,14 +79,14 @@ while True:
             if chain_id in quit_list:
                 break
             # Get the type of record to print/write
-            record_type = input("Please specify the record type of ATOM or HETATM (Enter if both should be included in the file): ")
+            record_type = input("Please specify the record type - ATOM (protein residue) or HETATM (non-protein residue).\nPress Enter if both should be included in the file: ")
             if record_type in quit_list:
                 break
             pdblib.get_chain_residues(chain_id, record_type, filename, open_type, pdb_lines)
             
     # If no PDB file contents have been downloaded yet, go back to main menu
     elif (pdb_lines == []):
-        print("No PDB file has been downloaded and read yet. Please download first.")
+        print("No PDB file has been downloaded and read yet. Please download the PDB file first (option 1).")
         
     elif option == "2":
         # Show all details that can be printed for a PDB file

@@ -21,7 +21,7 @@ def download_pdb(pdb_id):
         # if not successful, return an empty list
         if response.status_code != 200:
             print("A file for PDB ID {0} could not be downloaded. Please check the PDB ID given.".format(pdb_id))
-            return []
+            return ([], "")
         # If successfully downloaded
         else:
             # Get the file contents
@@ -129,6 +129,7 @@ def get_fasta_protseqs(filename, chain_id, lines):
                 formatted_seq = format_80(prot_res)
                 fobject.write(header)
                 fobject.write(formatted_seq+"\n")
+        print("The protein residues from chains {0} were written to the FASTA file {1}.fasta".format(chain_ids, filename))
 
 def get_residue_lines(chain_id, starting, lines):
     """Returns a string containing all lines which start with the given strings in the starting list and contain the chain ID"""
@@ -146,9 +147,10 @@ def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
         starting = ["ATOM", "HETATM"]
     else:
         starting = [record_type]
+    print(starting)
     # If asked to read from the file
     if read_write == "r":
-        contents = download_pdb(filename)
+        (contents, pdb_id) = download_pdb(filename)
         print(get_residue_lines(chain_id, starting, contents))
     # Otherwise assume we are writing to the filename given
     else:
@@ -157,6 +159,7 @@ def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
         # Write the lines to the file
         with open((filename+".txt"), "w") as fobject:
             fobject.write(file_contents)
+        print("Your resultant lines for chain {0} are in {1}.txt".format(chain_id, filename))
 
 def alter_chain_id(old_chain_id, new_chain_id, lines):
     """Alters the old chain ID to a new chain ID for the given contents of the PDB file, saving the changed contents to a file"""
@@ -191,6 +194,7 @@ def alter_chain_id(old_chain_id, new_chain_id, lines):
             # Write the altered text to the file named according to the header
             with open(filename, 'w') as fobject:
                 fobject.write(altered_text)
+            print("The chain ID {0} has been altered to {1} for all residue lines in file {2}".format(old_chain_id, new_chain_id, filename))
         # If old chain ID was not found, could be one of the reasons printed to user below
         else:
             if old_chain_id == "":
