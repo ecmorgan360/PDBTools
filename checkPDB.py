@@ -4,7 +4,7 @@ from PDBTools import pdblib
 
 def printed_menu(curr_id):
     print("\nThe functionalities of this program are listed below (enter the number or letter to choose):\n\
-    1 - Get contents of PDB file locally or download PDB file from NSCB given a PDB ID\n\
+    1 - Provide a PDB ID to get contents of the local PDB file or download the PDB file from NSCB\n\
     2 - Print details from a downloaded PDB file\n\
     3 - Print protein residues for a given chain ID from a downloaded PDB file\n\
     4 - Write protein residues of one or more chains from a PDB file in FASTA file format\n\
@@ -28,18 +28,25 @@ def printed_detail_options():
     6 - Resolution\n\
     7 - Journal Title\n")
 
+def get_valid_input(prompt_message, check_function, list_quit):
+    user_input = input(prompt_message)
+    while (user_input not in list_quit) and (not check_function(user_input)):
+        user_input = input(prompt_message)
+    return user_input
+
 # Variable to hold lines of PDB file
 pdb_lines = []
+# Variable that keeps track of the current PDB filename/ID
 curr_id = ""
 # Strings that will cause the program to quit
 quit_list = ["q", "Q", "quit"]
 
-print("Welcome! This program makes use of PDBTools")
+print("Welcome! This program makes use of the PDBTools package.")
 # Initially print the menu
 printed_menu(curr_id)
 while True:
     # Receive user input
-    option = input("Choose an option: ")
+    option = input("Choose from the main options (press Enter to see list of main options): ")
     # If user has asked to quit, break out of while loop
     if option in quit_list:
         break
@@ -62,12 +69,12 @@ while True:
     # If user wishes to read/write residue lines
     elif option == "5":
         # Get the filename
-        filename = input("Please specify the name of the file to read/write from (e.g. 1HIV): ")
+        filename = get_valid_input("Please specify the name of the file to read/write from (e.g. 1HIV): ", pdblib.is_valid_filename, quit_list)
         # If given input to quit, quit the program
         if filename in quit_list:
             break
         # Get whether the user will read or write to the file
-        open_type = input("Please specify if you want to read (r) or write (w) to this file: ")
+        open_type = input("Please specify if you want to read (r) or write (any other input) to this file: ")
         # Quit if input given is a a valid quitting string
         if open_type in quit_list:
             break
@@ -76,11 +83,11 @@ while True:
             print("You cannot write to this file as no PDB file has been downloaded yet. Please download the PDB file first (option 1).")
         else:
             # Get the chain ID
-            chain_id = input("Please give the chain ID to search for: ")
+            chain_id = get_valid_input("Please give the chain ID to search for: ", pdblib.is_valid_chain, quit_list)
             if chain_id in quit_list:
                 break
             # Get the type of record to print/write
-            record_type = input("Please specify the record type - ATOM (protein residue) or HETATM (non-protein residue).\nPress Enter if both should be included in the file: ")
+            record_type = input("Please specify the record type - ATOM (protein residue) or HETATM (non-protein residue).\nWrite anything else if both should be included in the file: ")
             if record_type in quit_list:
                 break
             pdblib.get_chain_residues(chain_id, record_type, filename, open_type, pdb_lines)
@@ -114,7 +121,7 @@ while True:
     # 
     elif option == "3":
         # Get the chain ID from the user
-        chain_id = input("Please provide the chain ID: ")
+        chain_id = get_valid_input("Please provide the chain ID: ", pdblib.is_valid_chain, quit_list)
         # If asked to quit, then quit the program
         if chain_id in quit_list:
             break
@@ -124,23 +131,25 @@ while True:
             
     elif option == "4":
         # Get the output filename
-        output_filename = input("Please give the name of the FASTA file you wish to write the protein residues to (e.g. protein_resA): ")
+        output_filename = get_valid_input("Please give the name of the FASTA file you wish to write the protein residues to (e.g. protein_resA): ", pdblib.is_valid_filename, quit_list)
         if output_filename in quit_list:
             break
         # Get the chain ID (if empty string is returned, want all of them)
         chain_id = input("Please provide the chain ID you wish to search for (Enter if all should be included): ")
-        if output_filename in quit_list:
+        while (chain_id != "") and (chain_id not in quit_list) and (not pdblib.is_valid_chain(chain_id)):
+            chain_id = input("Please provide the chain ID you wish to search for (Enter if all should be included): ")
+        if chain_id in quit_list:
             break
         # Call function to write protein residues to FASTA file
         pdblib.get_fasta_protseqs(output_filename, chain_id, pdb_lines)
         
     elif option == "6":
         # Get the chain ID to alter
-        old_chain_id = input("Please give the name of the chain ID to alter: ")
+        old_chain_id = get_valid_input("Please give the name of the chain ID to alter: ", pdblib.is_valid_chain, quit_list)
         if old_chain_id in quit_list:
             break
-        # Get the new chain ID that will be replacing old
-        new_chain_id = input("Please give the chain ID that will be replacing the old chain ID (one alphabetical character): ")
+        # Get the new chain ID that will be replacing old chain ID
+        new_chain_id = get_valid_input("Please give the chain ID that will be replacing the old chain ID (one alphabetical character): ", pdblib.is_valid_chain, quit_list)
         if new_chain_id in quit_list:
             break
         # Alter the chain ID
@@ -150,16 +159,20 @@ while True:
         pdblib.print_nonstandard_residues(pdb_lines)
         
     elif option == "8":
-        chain_id = input("Please give the chain ID of the protein: ")
+        # Get a chain ID
+        chain_id = get_valid_input("Please give the chain ID of the protein: ", pdblib.is_valid_chain, quit_list)
         if chain_id in quit_list:
             break
-        height = input("Please give the height of the plot in inches: ")
+        # Get a height value 
+        height = get_valid_input("Please give the height of the plot in inches: ", pdblib.is_valid_dimension, quit_list)
         if height in quit_list:
             break
-        width = input("Please give the width of the plot in inches: ")
+        # Get a width value
+        width = get_valid_input("Please give the width of the plot in inches: ", pdblib.is_valid_dimension, quit_list)
         if width in quit_list:
             break
-        filename = input("Please give full name of the file to save the plot as: ")
+        # Get a valid filename
+        filename = get_valid_input("Please give full name of the file to save the plot as (e.g. 1HIV_A_tempfact.png): ", pdblib.is_valid_filename, quit_list)
         if filename in quit_list:
             break
         pdblib.plot_temp_factor(chain_id, height, width, filename, pdb_lines)

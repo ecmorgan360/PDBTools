@@ -155,7 +155,6 @@ def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
         starting = ["ATOM", "HETATM"]
     else:
         starting = [record_type]
-    print(starting)
     # If asked to read from the file
     if read_write == "r":
         (contents, pdb_id) = download_pdb(filename)
@@ -170,16 +169,41 @@ def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
         print("Your resultant lines for chain {0} are in {1}.txt".format(chain_id, filename))
 
 def is_valid_chain(chain_id):
-    valid = False
     """Returns True if the chain ID is syntactically correct, False otherwise"""
+    valid = False
     # Must not be empty
     if chain_id == "":
         print("One or more provided chain IDs were empty. Please provide a single alphabetical character for each chain.")
+    # Can only be one character long
     elif len(chain_id) > 1:
         chain_length = len(chain_id)
         print("A chain ID can only be one character long. The chain ID provided, {0}, had a length of {1}".format(chain_id, chain_length))
+    # Must be an alphabetical character
     elif chain_id.isnumeric():
         print("A chain ID can only be an alphabetic character, not a numeric character.")
+    else:
+        valid = True
+    return valid
+
+def is_valid_dimension(dim):
+    """Returns True if the dimension is syntactically correct, False otherwise"""
+    valid = False
+    # Must not be empty
+    if dim == "":
+        print("No dimension was given. Please give a numerical value.")
+    # Must only contain numeric characters
+    elif (not dim.isnumeric()):
+        print("The dimension given can only be a numerical type. Please only use digits (integers only, not floats).")
+    else:
+        valid = True
+    return valid
+
+def is_valid_filename(filename):
+    """Returns True if a valid name for a file without an extension, False otherwise"""
+    valid = False
+    # Must not be empty
+    if filename == "":
+        print("Filename is empty. Please provide a filename containing alphanumerical characters.")
     else:
         valid = True
     return valid
@@ -256,24 +280,25 @@ def print_nonstandard_residues(lines):
 
 def plot_temp_factor(chain_id, height, width, output_filename, lines):
     """Plots the temperature factor for all atoms of the protein chain, writing to an output file a plot of given height and width"""
-    height = int(height)
-    width = int(width)
-    # Get all atom numbers in one list, and temperature factors in a second one
-    atom_nums = []
-    temp_factors = []
-    for line in lines:
-        # Get each line detailing an atom of a protein residue
-        if line.startswith("ATOM"):
-            atom_num = int(line[4:11])
-            temp_factor = float(line[61:66])
-            atom_nums.append(atom_num)
-            temp_factors.append(int(temp_factor))
-    # Plotting line graph of size height by width
-    fig = plt.figure(figsize=(height, width))
-    # X axis is atom numbers, y axis is temperature factor
-    plt.plot(atom_nums, temp_factors)
-    # Label x and y axes
-    plt.xlabel("Atom number")
-    plt.ylabel("Temperature factor")
-    plt.savefig(output_filename)
+    if is_valid_dimension(height) and is_valid_dimension(width):
+        height = int(height)
+        width = int(width)
+        # Get all atom numbers in one list, and temperature factors in a second one
+        atom_nums = []
+        temp_factors = []
+        for line in lines:
+            # Get each line detailing an atom of a protein residue
+            if line.startswith("ATOM"):
+                atom_num = int(line[4:11])
+                temp_factor = float(line[61:66])
+                atom_nums.append(atom_num)
+                temp_factors.append(int(temp_factor))
+        # Plotting line graph of size height by width
+        fig = plt.figure(figsize=(height, width))
+        # X axis is atom numbers, y axis is temperature factor
+        plt.plot(atom_nums, temp_factors)
+        # Label x and y axes
+        plt.xlabel("Atom number")
+        plt.ylabel("Temperature factor")
+        plt.savefig(output_filename)
 
