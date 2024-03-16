@@ -29,6 +29,7 @@ def printed_detail_options():
     7 - Journal Title\n")
 
 def get_valid_input(prompt_message, check_function, list_quit):
+    """Will prompt user for input until a valid string is given"""
     user_input = input(prompt_message)
     while (user_input not in list_quit) and (not check_function(user_input)):
         user_input = input(prompt_message)
@@ -136,7 +137,7 @@ while True:
             break
         # Get the chain ID (if empty string is returned, want all of them)
         chain_id = input("Please provide the chain ID you wish to search for (Enter if all should be included): ")
-        while (chain_id != "") and (chain_id not in quit_list) and (not pdblib.is_valid_chain(chain_id)):
+        while (chain_id != "") and (not pdblib.is_valid_chain(chain_id)) and (chain_id not in quit_list):
             chain_id = input("Please provide the chain ID you wish to search for (Enter if all should be included): ")
         if chain_id in quit_list:
             break

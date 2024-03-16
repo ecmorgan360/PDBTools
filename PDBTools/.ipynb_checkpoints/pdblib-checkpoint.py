@@ -158,15 +158,21 @@ def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
     # If asked to read from the file
     if read_write == "r":
         (contents, pdb_id) = download_pdb(filename)
-        print(get_residue_lines(chain_id, starting, contents))
+        line_results = get_residue_lines(chain_id, starting, contents)
+        if line_results == "":
+            print("No lines with the chain ID of {0} could be found.".format(chain_id))
     # Otherwise assume we are writing to the filename given
     else:
         # Get the lines needed
         file_contents = get_residue_lines(chain_id, starting, pdb_lines)
-        # Write the lines to the file
-        with open((filename+".txt"), "w") as fobject:
-            fobject.write(file_contents)
-        print("Your resultant lines for chain {0} are in {1}.txt".format(chain_id, filename))
+        # If no lines were found, the chain ID does not exist in the file
+        if file_contents == "":
+            print("The chain ID {0} could not be found for a residue in the file.".format(chain_id))
+        # Otherwise write the lines to the file
+        else:
+            with open((filename+".txt"), "w") as fobject:
+                fobject.write(file_contents)
+            print("Your resultant lines for chain {0} are in {1}.txt".format(chain_id, filename))
 
 def is_valid_chain(chain_id):
     """Returns True if the chain ID is syntactically correct, False otherwise"""
