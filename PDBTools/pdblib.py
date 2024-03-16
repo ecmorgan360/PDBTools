@@ -5,12 +5,21 @@ import matplotlib.pyplot as plt
 def download_pdb(pdb_id):
     """Reads local PDB file contents, or downloads PDB file from RSCB site and saves to a file if no local copy. It returns the contents of the file as a list of lines."""
     # Create a string of the filename
-    filename = pdb_id + ".pdb"
+    filename_lower = pdb_id.lower() + ".pdb"
+    filename_upper = pdb_id.upper() + ".pdb"
     # If the filename is found locally, open the file and read the contents
-    if os.path.isfile(filename):
+    if os.path.isfile(filename_upper):
+        pdb_id = pdb_id.upper()
         # Print message to tell user that local file has been found
         print("A local file for this ID, {0}.pdb was found. The contents of this file are now being read.".format(pdb_id))
-        with open(filename, 'r') as fobject:
+        with open(filename_upper, 'r') as fobject:
+            # Get all contents as a string
+            contents = fobject.read()
+    elif os.path.isfile(filename_lower):
+        pdb_id = pdb_id.lower()
+        # Print message to tell user that local file has been found
+        print("A local file for this ID, {0}.pdb was found. The contents of this file are now being read.".format(pdb_id))
+        with open(filename_lower, 'r') as fobject:
             # Get all contents as a string
             contents = fobject.read()
     # If the file is not found locally, use requests to download it
@@ -27,7 +36,7 @@ def download_pdb(pdb_id):
             # Get the file contents
             contents = response.text
             # Save the file locally
-            with open(filename, 'w') as fobject:
+            with open(filename_upper, 'w') as fobject:
                 fobject.write(contents)
             print("The PDB file has been downloaded, and saved to the file {0}.pdb".format(pdb_id))
     # Convert string to list of lines of the file

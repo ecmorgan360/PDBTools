@@ -59,7 +59,7 @@ while True:
     # If user wishes to get the file contents
     elif option == "1":
         # Ask for a PDB ID to access the file
-        pdb_id = input("Please provide a PDB ID (case sensitive): ")
+        pdb_id = input("Please provide a PDB ID: ")
         # If user provides string to quit, break out of while loop
         if pdb_id in quit_list:
             break
