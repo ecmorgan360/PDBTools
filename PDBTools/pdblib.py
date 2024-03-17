@@ -182,7 +182,7 @@ def get_fasta_protseqs(filename, chain_id, lines):
         # Otherwise, add header and formatted protein sequence to contents
         else:
             header = ">" + " ".join((lines[0][10:-1]).split()) + ": {0}\n".format(chain_id)
-            formatted_seq = format_80(prot_res)
+            formatted_seq = format_80(prot_res) + "\n"
             contents += header + formatted_seq
     # Only write to the FASTA file if any protein sequences were found
     if contents != "":
@@ -356,9 +356,9 @@ def print_nonstandard_residues(lines):
     lines - file contents of pdb file (list of string lines)
     Output:
     None (prints non-standard protein residues, or sentence telling user all are standard protein residues)"""
-    # List of three-letter codes for all standard protein residues
-    codes = ["ALA", "ASX", "CYS", "ASP", "GLU", "PHE", "GLY", "HIS", "ILE", "LYS", "LEU", "MET", "ASN", "PRO", 
-             "GLN", "ARG", "SER", "THR", "SEC", "VAL", "TRP", "XAA", "TYR", "GLX"]
+    # List of three-letter codes for all standard protein residues (only taking 20 as standard)
+    codes = ["ALA", "CYS", "ASP", "GLU", "PHE", "GLY", "HIS", "ILE", "LYS", "LEU", "MET", "ASN", "PRO", 
+             "GLN", "ARG", "SER", "THR", "VAL", "TRP", "TYR"]
     non_standards = ""
     curr_chain = ""
     counter = 0
@@ -372,17 +372,17 @@ def print_nonstandard_residues(lines):
             # Increase the counter to find the next protein residue
             counter = int(line[23:26])
             # Find the current code
-            res_code = line[17:20]
+            res_code = line[16:20].strip()
             # Add code if not in list of standard protein residues
             if res_code not in codes:
-                non_standards += res_code
+                non_standards += res_code + " "
     # If no non-standard codes found, print that all were standard
     if non_standards == "":
         print("All protein residues were standard.")
     # Print any non-stnadard codes
     else:
         print(non_standards)
-
+        
 def plot_temp_factor(chain_id, height, width, output_filename, lines, pdb_id):
     """Plots the temperature factor for all atoms of the protein chain, writing to an output file a plot of given height and width
     Inputs:
@@ -394,6 +394,10 @@ def plot_temp_factor(chain_id, height, width, output_filename, lines, pdb_id):
     pdb_id - current PDB ID
     Output:
     None (saves plot to file if successful, hint to user if unsuccessful)"""
+    # Note: this interpretation of plotting the temperature factor of the protein is that only
+    # protein residues will be considered (not the non-protein residues) and the temperature factor
+    # is plotted for each atom of the protein residues, not each protein residue - then it would
+    # have been determining which of the atoms would be used in an a verage for each residue
     if is_valid_dimension(height) and is_valid_dimension(width) and is_valid_chain(chain_id):
         height = int(height)
         width = int(width)
