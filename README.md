@@ -56,3 +56,4 @@ Then, you should be able to start running checkPDB.py by executing the following
 
 `./checkPDB.py`
 
+If you wish to use the PDB files in the tar.gz file, extract the files from that file, and then move them into the main PDBTools folder, so that they can be seen locally.
