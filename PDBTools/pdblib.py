@@ -2,23 +2,36 @@ import requests
 import os
 import matplotlib.pyplot as plt
 
+
+"""
+All of the following defined functions can be called in other python programs. As they can be used in other programs
+and not just checkPDB.py, all provided arguments are checked, and any potential errors are prevented through if-else 
+statements. However, users can use the check functions like is_valid_chain in their own programs as well.
+"""
+
 def download_pdb(pdb_id):
-    """Reads local PDB file contents, or downloads PDB file from RSCB site and saves to a file if no local copy. It returns the contents of the file as a list of lines."""
-    # Create a string of the filename
+    """Reads local PDB file contents, or downloads PDB file from RSCB site and saves to a file if no local copy. It returns the contents of the file as a list of lines and file name as a tuple.
+    Input:
+    PDB ID (type string)
+    Outputs:
+    Contents of file corresponding to PDB ID if found (type list)
+    Name of file found locally/name of file downloaded, extension excluded (type string)
+    Both are returned as a tuple"""
+    # Create a string of the filename - try for both uppercase and lowercase
     filename_lower = pdb_id.lower() + ".pdb"
     filename_upper = pdb_id.upper() + ".pdb"
     # If the filename is found locally, open the file and read the contents
     if os.path.isfile(filename_upper):
         pdb_id = pdb_id.upper()
         # Print message to tell user that local file has been found
-        print("A local file for this ID, {0}.pdb was found. The contents of this file are now being read.".format(pdb_id))
+        print("A local file for this ID, {0}.pdb was found.".format(pdb_id))
         with open(filename_upper, 'r') as fobject:
             # Get all contents as a string
             contents = fobject.read()
     elif os.path.isfile(filename_lower):
         pdb_id = pdb_id.lower()
         # Print message to tell user that local file has been found
-        print("A local file for this ID, {0}.pdb was found. The contents of this file are now being read.".format(pdb_id))
+        print("A local file for this ID, {0}.pdb was found.".format(pdb_id))
         with open(filename_lower, 'r') as fobject:
             # Get all contents as a string
             contents = fobject.read()
@@ -41,11 +54,17 @@ def download_pdb(pdb_id):
             print("The PDB file has been downloaded, and saved to the file {0}.pdb".format(pdb_id))
     # Convert string to list of lines of the file
     lines = contents.split("\n")
-    # Return list of lines
+    # Tell user that lines have bee read
+    print("The contents of the file with PDB ID {0} has successfully been read.".format(pdb_id))
+    # Return list of lines and filename (pdb ID either uppercase or lowercase)
     return (lines, pdb_id)
 
 def format_80(contents):
-    """Converts a string to a formatted string with 80 characters on each line"""
+    """Converts a string to a formatted string with 80 characters on each line
+    Input:
+    Unformatted file contents (type string)
+    Output:
+    Formatted file contents (type string)"""
     formatted = ""
     # Iterates through each index corresponding to a character in the string
     for char_idx in range(len(contents)):
@@ -58,7 +77,12 @@ def format_80(contents):
     return formatted
 
 def print_details(details, lines):
-    """Prints each given detail from the list of details, each detail on a separate line. If the detail is longer than 80 characters, wrapping to the next line is performed."""
+    """Prints each given detail from the list of details, each detail on a separate line. If the detail is longer than 80 characters, wrapping to the next line is performed.
+    Inputs:
+    details - Starting part of the line for each detail (type list)
+    lines - File contents of a PDB file as a list of strings
+    Output:
+    None (formatted details printed to standard output)"""
     # Iterate through each line
     for line in lines:
         # Iterate through each key in the dictionary
@@ -81,7 +105,13 @@ def print_details(details, lines):
             print(formatted)
 
 def get_prot_residues(chain_id, lines):
-    """Returns the single letter protein residues for a given chain_id of the PDB file"""
+    """Returns the single letter protein residues for a given chain_id of the PDB file
+    Inputs:
+    chain_id - Chain ID associated with protein residues to print (type string)
+    lines - file contents of pdb file (list of string lines)
+    Output:
+    1-letter protein residues for the chain ID (type string)
+    """
     # Dictionary with three-letter amino acid residues as keys, and one-letter aas as values
     codes = {"ALA":"A", "ASX":"B", "CYS":"C", "ASP":"D", "GLU":"E", "PHE":"F", "GLY":"G", "HIS":"H", "ILE":"I", "LYS":"K", "LEU":"L", "MET":"M", "ASN":"N", "PRO":"P", 
              "GLN":"Q", "ARG":"R", "SER":"S", "THR":"T", "SEC":"U", "VAL":"V", "TRP":"W", "XAA":"X", "TYR":"Y", "GLX":"Z"}
@@ -97,7 +127,13 @@ def get_prot_residues(chain_id, lines):
     return prot_res
 
 def print_prot_residues(chain_id, lines):
-    """Prints the single letter protein residues for a given chain_id of a PDB file"""
+    """Prints the single letter protein residues for a given chain_id of a PDB file
+    Inputs:
+    chain_id - Chain ID associated with protein residues to print (type string)
+    lines - file contents of pdb file (list of string lines)
+    Output:
+    1-letter protein residues for the chain ID (type string)
+    """
     # Check that chain ID is syntactically valid
     if is_valid_chain(chain_id):
         # Get the single letter protein residues for the chain
@@ -110,6 +146,13 @@ def print_prot_residues(chain_id, lines):
             print(prot_res)
 
 def get_fasta_protseqs(filename, chain_id, lines):
+    """Write the protein residue sequence of one or more chain IDs to a given FASTA file
+    Inputs:
+    filename - the name of a FASTA file to write to, excluding extension (type string)
+    chain_id - Chain ID associated with protein residues (if empty string, all must be used)
+    lines - file contents of pdb file (list of string lines)
+    Output:
+    None (writes protein residue sequences to file if found, or prints error message if not found)"""
     # If the chain ID was not given, find all chain IDs for protein residues
     if chain_id == "":
         # Empty set of chain IDs
@@ -149,7 +192,14 @@ def get_fasta_protseqs(filename, chain_id, lines):
         print("The protein residues from chains {0} were written to the FASTA file {1}.fasta".format(chain_ids, filename))
 
 def get_residue_lines(chain_id, starting, lines):
-    """Returns a string containing all lines which start with the given strings in the starting list and contain the chain ID"""
+    """Returns a string containing all lines which start with the given strings in the starting list and contain the chain ID
+    Inputs:
+    chain_id - Chain ID used to find lines only containing that chain ID (type string)
+    starting - Starting strings for lines to find (list of strings)
+    lines - file contents of pdb file (list of string lines)
+    Output:
+    String containing all lines matching given criteria
+    """
     res_lines = ""
     for line in lines:
         for record in starting:
@@ -158,7 +208,16 @@ def get_residue_lines(chain_id, starting, lines):
     return res_lines
                 
 def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
-    """Prints the lines matching the record type asked for from the given filename, or writes these lines to a file to the given filename for a particular chain ID"""
+    """Prints the lines matching the record type asked for from the given filename, or writes these lines to a file to the given filename for a particular chain ID
+    Inputs:
+    chain_id - Chain ID associated with residues (type string)
+    record_type - ATOM for protein residues, HETATM for non-protein residues, anything else for both (type string)
+    filename - name of the file to read from/write to, excluding extension (type string)
+    read_write - 'r' to read file, anything else to write to file (type string)
+    lines - file contents of pdb file (list of string lines)
+    Output:
+    None (writes residues to file or prints residues to standard output)
+    """
     # Find ATOM and HETATM if record type is anything other than ATOM or HETATM
     if (record_type != "ATOM") and (record_type != "HETATM"):
         starting = ["ATOM", "HETATM"]
@@ -186,7 +245,12 @@ def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
             print("Your resultant lines for chain {0} are in {1}.txt".format(chain_id, filename))
 
 def is_valid_chain(chain_id):
-    """Returns True if the chain ID is syntactically correct, False otherwise"""
+    """Returns True if the chain ID is syntactically correct, False otherwise
+    Input:
+    chain_id - Chain ID to check
+    Output:
+    True if syntactically valid Chain ID
+    False if not syntactically valid Chain ID"""
     valid = False
     # Must not be empty
     if chain_id == "":
@@ -203,7 +267,12 @@ def is_valid_chain(chain_id):
     return valid
 
 def is_valid_dimension(dim):
-    """Returns True if the dimension is syntactically correct, False otherwise"""
+    """Returns True if the dimension is syntactically correct, False otherwise
+    Input:
+    dim - dimension to check
+    Output:
+    True if syntactically valid dimension (a numerical input)
+    False if not syntactically valid dimension"""
     valid = False
     # Must not be empty
     if dim == "":
@@ -216,17 +285,31 @@ def is_valid_dimension(dim):
     return valid
 
 def is_valid_filename(filename):
-    """Returns True if a valid name for a file without an extension, False otherwise"""
+    """Returns True if a valid name for a file without an extension, False otherwise
+    Input:
+    filename - Filename to check
+    Output:
+    True if syntactically valid filename
+    False if not syntactically valid filename"""
     valid = False
     # Must not be empty
     if filename == "":
         print("Filename is empty. Please provide a filename containing alphanumerical characters.")
+    elif "/" in filename:
+        print("No / characters can be given to filename. Please choose another name.")
     else:
         valid = True
     return valid
 
 def alter_chain_id(old_chain_id, new_chain_id, lines, pdb_id):
-    """Alters the old chain ID to a new chain ID for all residues in the PDB file, saving the changed contents to a file"""
+    """Alters the old chain ID to a new chain ID for all residues in the PDB file, saving the changed contents to a file
+    Inputs:
+    old_chain_id - Chain ID currently in file that must be altered
+    new_chain_id - Chain ID that the old ID will be replaced with
+    lines - file contents of pdb file (list of string lines)
+    pdb_id - name of current PDB file
+    Output:
+    List of contents of current PDB file, and name of current file"""
     # If both chain IDs are syntactically valid
     if (is_valid_chain(old_chain_id)) and (is_valid_chain(new_chain_id)):
         # Check if old chain ID is actually in the PDB file for any residues
@@ -252,13 +335,14 @@ def alter_chain_id(old_chain_id, new_chain_id, lines, pdb_id):
                     altered_text += (line) + "\n"
                     new_lines.append(line)
             # Get the name of the file from the header
-            filename = pdb_id + "_" + new_chain_id + ".pdb"
+            new_pdb_id = pdb_id + "_" + new_chain_id
+            filename = new_pdb_id + ".pdb"
             # Write the altered text to the file named according to the header
             with open(filename, 'w') as fobject:
                 fobject.write(altered_text)
             print("The chain ID {0} has been altered to {1} for all residue lines, saved to file {2}. File {2} is now the PDB file being used".format(old_chain_id, new_chain_id, filename))
             # Update the list of lines in main program to also be altered
-            return (new_lines, filename)
+            return (new_lines, new_pdb_id)
         # If old chain ID was not found, tell user to choose another ID that exists
         else:
             print("The old chain ID {0} does not exist in this file. Please give a different chain ID.".format(old_chain_id))
@@ -267,7 +351,11 @@ def alter_chain_id(old_chain_id, new_chain_id, lines, pdb_id):
 
 
 def print_nonstandard_residues(lines):
-    """Prints any non-standard protein residues given the contents of the PDB file"""
+    """Prints any non-standard protein residues given the contents of the PDB file
+    Input:
+    lines - file contents of pdb file (list of string lines)
+    Output:
+    None (prints non-standard protein residues, or sentence telling user all are standard protein residues)"""
     # List of three-letter codes for all standard protein residues
     codes = ["ALA", "ASX", "CYS", "ASP", "GLU", "PHE", "GLY", "HIS", "ILE", "LYS", "LEU", "MET", "ASN", "PRO", 
              "GLN", "ARG", "SER", "THR", "SEC", "VAL", "TRP", "XAA", "TYR", "GLX"]
@@ -295,27 +383,43 @@ def print_nonstandard_residues(lines):
     else:
         print(non_standards)
 
-def plot_temp_factor(chain_id, height, width, output_filename, lines):
-    """Plots the temperature factor for all atoms of the protein chain, writing to an output file a plot of given height and width"""
-    if is_valid_dimension(height) and is_valid_dimension(width):
+def plot_temp_factor(chain_id, height, width, output_filename, lines, pdb_id):
+    """Plots the temperature factor for all atoms of the protein chain, writing to an output file a plot of given height and width
+    Inputs:
+    chain_id - Chain ID of protein residues to plot (type string)
+    height - the height of the plot (type string)
+    width - the width of the plot (type string)
+    output_filename - name of the file to save the plot to, excluding extension (type string)
+    lines - file contents of pdb file (list of string lines)
+    pdb_id - current PDB ID
+    Output:
+    None (saves plot to file if successful, hint to user if unsuccessful)"""
+    if is_valid_dimension(height) and is_valid_dimension(width) and is_valid_chain(chain_id):
         height = int(height)
         width = int(width)
         # Get all atom numbers in one list, and temperature factors in a second one
         atom_nums = []
         temp_factors = []
         for line in lines:
-            # Get each line detailing an atom of a protein residue
-            if line.startswith("ATOM"):
+            # Get each line detailing an atom of a protein residue only of given chain
+            if line.startswith("ATOM") and (line[21] == chain_id):
                 atom_num = int(line[4:11])
                 temp_factor = float(line[61:66])
                 atom_nums.append(atom_num)
                 temp_factors.append(int(temp_factor))
-        # Plotting line graph of size height by width
-        fig = plt.figure(figsize=(height, width))
-        # X axis is atom numbers, y axis is temperature factor
-        plt.plot(atom_nums, temp_factors)
-        # Label x and y axes
-        plt.xlabel("Atom number")
-        plt.ylabel("Temperature factor")
-        plt.savefig(output_filename)
+        # If nothing found, given chain ID does not exist
+        if atom_nums == []:
+            print("Temperature factors for a chain ID of {0} could not be found.".format(chain_id))
+        else:
+            # Plotting line graph of size height by width
+            fig = plt.figure(figsize=(height, width))
+            # X axis is atom numbers, y axis is temperature factor
+            plt.plot(atom_nums, temp_factors)
+            # Label x and y axes
+            plt.title("Line plot of temperature factor of the protein residues for chain {0} of PDB ID {1}".format(chain_id, pdb_id))
+            plt.xlabel("Atom number")
+            plt.ylabel("Temperature factor")
+            if is_valid_filename(output_filename):
+                output_filename = output_filename + ".png"
+                plt.savefig(output_filename)
 
