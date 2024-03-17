@@ -106,16 +106,20 @@ while True:
         detail_options = input("Please give a list of options:")
         options_list = detail_options.split(",")
         user_details = {}
-        if detail_dict.keys() in quit_list:
-            break
         # Add each option to a dictionary with the line pattern as a key, and empty string as value
+        quit_from_program = False
         for option in options_list:
-            if option in detail_dict.keys():
+            if option in quit_list:
+                quit_from_program = True
+                break
+            elif option in detail_dict.keys():
                 detail = detail_dict[option]
                 user_details[detail] = ""
             # If invalid option is given, print to user that invalid
             else:
                 print("Option {0} could not be found".format(option))
+        if quit_from_program:
+            break
         # Print the details if they can be found in the file
         pdblib.print_details(user_details, pdb_lines)
         

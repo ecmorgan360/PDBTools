@@ -170,6 +170,8 @@ def get_chain_residues(chain_id, record_type, filename, read_write, pdb_lines):
         line_results = get_residue_lines(chain_id, starting, contents)
         if line_results == "":
             print("No lines with the chain ID of {0} could be found.".format(chain_id))
+        else:
+            print(line_results)
     # Otherwise assume we are writing to the filename given
     else:
         # Get the lines needed
